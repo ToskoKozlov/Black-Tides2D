@@ -6,7 +6,6 @@ public class UserModel
     public string username = "";
     public string email = "";
     public string password = "";
-    public string salt = "";
     public string token = "";
 
     // create a string JSON from object
