@@ -35,6 +35,9 @@ bld/
 *.VisualState.xml
 TestResult.xml
 
+# Temporary files
+[Tt]emp/
+
 # Build Results of an ATL Project
 [Dd]ebugPS/
 [Rr]eleasePS/

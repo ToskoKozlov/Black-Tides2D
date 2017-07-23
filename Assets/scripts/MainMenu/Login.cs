@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class Login : MonoBehaviour {
@@ -43,20 +39,11 @@ public class Login : MonoBehaviour {
     {
         if (insertedUserEmail != "" && insertedPassword != "")
         {
-            
             // set loading screen
             modalPanel.SetActive(true);
 
-             //read salt
-            string salt = LoadSalt(insertedUserEmail+".info");
-
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(insertedPassword, salt);
-            Debug.Log(hashedPassword);
-
-            Debug.Log("Making request...");
             //send request to API (TODO make request asyncronous)
-            LoginPlayer(insertedUserEmail, hashedPassword, salt);
-
+            LoginPlayer(insertedUserEmail, insertedPassword);
         }
         else
         {
@@ -64,25 +51,17 @@ public class Login : MonoBehaviour {
         }
     }
 
-    // load salt
-    public static string LoadSalt(string fileName)
-    {
-        string salt = "";
-        salt = System.IO.File.ReadAllText(fileName);
-        return salt;
-    }
-
-    private APIResponseModel LoginPlayer(string userEmail, string hashedPassword, string salt)
+    // send a request to API to log in with a user
+    private APIResponseModel LoginPlayer(string userEmail, string password)
     {
         APIResponseModel response = new APIResponseModel();
 
         UserModel user = new UserModel()
         {
-            password = hashedPassword,
-            salt = salt
+            password = password,
         };
 
-        // check if userEmail is an email or the username
+        // check if userEmail is an email or a username
         if (Utils.CheckEmail(userEmail))
         {
             user.email = userEmail;
@@ -92,16 +71,16 @@ public class Login : MonoBehaviour {
             user.username = userEmail;
         }
 
+        // create the JSON
         string json = user.SaveToString();
-        Debug.Log(json);
-        //make the request to the remote API
+
+        //make the request to the remote API (TODO: make request asynchronous)
         response = APIManager.MakeRequest(endpoint, "POST", json);
 
         if (response.status == 200)
         {
             user.token = response.token;
             Scenes.LoadGameView();
-            Debug.Log("Logged in!");
         }
         else
         {

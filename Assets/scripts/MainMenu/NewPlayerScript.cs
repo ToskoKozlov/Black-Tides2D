@@ -1,9 +1,5 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
-using System.Security.Cryptography;
-using System;
-using System.IO;
-
 
 public class NewPlayerScript : MonoBehaviour {
     public GameObject username;
@@ -65,6 +61,11 @@ public class NewPlayerScript : MonoBehaviour {
             {
                 Debug.Log("invalid email");
             }
+            //check strength of password
+            if (!StrongPass(Password))
+            {
+                Debug.Log("Password must have at least 5 characters");
+            }
             //check password == confpassword
             else if (!(Password == ConfPassword))
             {
@@ -75,15 +76,8 @@ public class NewPlayerScript : MonoBehaviour {
                 // set loading screen
                 modalPanel.SetActive(true);
 
-                string salt = BCrypt.Net.BCrypt.GenerateSalt();
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password, salt);
-
-                // save salt to local file
-                SaveSalt(salt, Username+".info");
-                SaveSalt(salt, Email+".info");
-
                 //send request to API (TODO make request asyncronous)
-                CreatePlayer(Username, hashedPassword, Email, salt);
+                CreatePlayer(Username, Password, Email);
             }
         }
         else
@@ -92,34 +86,15 @@ public class NewPlayerScript : MonoBehaviour {
         }
     }
 
-    public static void SaveSalt(string salt, string fileName)
-    {
-        var sr = File.CreateText(fileName);
-        sr.WriteLine(salt);
-        sr.Close();
-    }
-
-    // generate a random string
-    private static string CreateSalt(int size)
-    {
-        //Generate a cryptographic random number.
-        RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-        byte[] buff = new byte[size];
-        rng.GetBytes(buff);
-
-        // Return a Base64 string representation of the random number.
-        return Convert.ToBase64String(buff);
-    }
-
-    private APIResponseModel CreatePlayer(string username, string hashedPassword, string email, string salt)
+    // send a request to API to create a new player
+    private APIResponseModel CreatePlayer(string username, string password, string email)
     {
         APIResponseModel response = new APIResponseModel();
         UserModel user = new UserModel()
         {
             username = username,
             email = email,
-            password = hashedPassword,
-            salt = salt
+            password = password
         };
 
         string json = user.SaveToString();
@@ -142,5 +117,11 @@ public class NewPlayerScript : MonoBehaviour {
         modalPanel.SetActive(false);
 
         return response;
+    }
+
+    // check strength of a password
+    private bool StrongPass(string Password)
+    {
+        return (Password.Length >= 5);
     }
 }
