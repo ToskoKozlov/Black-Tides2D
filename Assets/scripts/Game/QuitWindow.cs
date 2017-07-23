@@ -15,4 +15,12 @@ public class QuitWindow : MonoBehaviour {
 	void Update () {
 
 	}
+
+    public void HideWindow()
+    {
+        if (currentWindow.activeInHierarchy)
+        {
+            currentWindow.SetActive(false);
+        }
+    }
 }

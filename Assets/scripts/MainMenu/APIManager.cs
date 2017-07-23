@@ -3,8 +3,8 @@ using System.Net;
 
 public class APIManager
 {
-    //private static string baseUrl = "http://ec2-54-76-133-2.eu-west-1.compute.amazonaws.com:5050";
-    private static string baseUrl = "http://localhost:5050";
+    private static string baseUrl = "http://ec2-54-76-133-2.eu-west-1.compute.amazonaws.com:5050";
+    //private static string baseUrl = "http://localhost:5050";
 
     public static APIResponseModel MakeRequest(string endpoint, string method = "POST", string json = "{}")
     {
